@@ -1,4 +1,6 @@
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,16 +11,25 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Logging.AddOpenTelemetry(options =>
+{
+    options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("ServiceB"));
+});
+
 var openTelementry = builder.Services.AddOpenTelemetry();
-openTelementry.UseAzureMonitor();
+openTelementry.ConfigureResource(resource => resource.AddService("ServiceB"));
+openTelementry.WithTracing(tracing =>
+{
+    tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("ServiceB"));
+    tracing.AddSource("OtPrGrJa.Example");
+    tracing.AddAspNetCoreInstrumentation();
+});
 openTelementry.WithMetrics(metrics => metrics
     .AddMeter("OtPrGrYa.Example")
     .AddMeter("Microsoft.AspNetCore.Hosting")
     .AddMeter("Microsoft.AspNetCore.Server.Kestrel"));
-openTelementry.WithTracing(tracing =>
-{
-    tracing.AddSource("OtPrGrJa.Example");
-});
+
+openTelementry.UseAzureMonitor();
 
 var app = builder.Build();
 

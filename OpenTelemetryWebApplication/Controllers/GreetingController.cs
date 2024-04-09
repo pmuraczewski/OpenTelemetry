@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
 using System.Diagnostics;
+using OpenTelemetry;
 
 namespace OpenTelemetryWebApplication.Controllers
 {
@@ -25,7 +26,7 @@ namespace OpenTelemetryWebApplication.Controllers
             _greeterActivitySource = new ActivitySource("OtPrGrJa.Example");
         }
 
-        [HttpGet]
+        [HttpGet("greeting")]
         public string SendGreeting()
         {
             // Create a new Activity scoped to the method
@@ -41,6 +42,19 @@ namespace OpenTelemetryWebApplication.Controllers
             activity?.SetTag("greeting", "Hello World!");
 
             return "Hello World!";
+        }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            var infoFromContext = Baggage.Current.GetBaggage("ExampleItem");
+
+            using var source = new ActivitySource("ExampleTracer");
+
+            // A span
+            using var activity = source.StartActivity("In Service B GET method");
+            activity?.SetTag("InfoServiceBReceived", infoFromContext);
+            return Ok();
         }
     }
 }
