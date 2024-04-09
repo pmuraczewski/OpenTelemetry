@@ -18,12 +18,10 @@ builder.Logging.AddOpenTelemetry(options =>
 
 var openTelementry = builder.Services.AddOpenTelemetry();
 openTelementry.ConfigureResource(resource => resource.AddService("ServiceB"));
-openTelementry.WithTracing(tracing =>
-{
-    tracing.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("ServiceB"));
-    tracing.AddSource("OtPrGrJa.Example");
-    tracing.AddAspNetCoreInstrumentation();
-});
+openTelementry.WithTracing(tracing => tracing
+    .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("ServiceB"))
+    .AddSource("OtPrGrJa.Example")
+    .AddAspNetCoreInstrumentation());
 openTelementry.WithMetrics(metrics => metrics
     .AddMeter("OtPrGrYa.Example")
     .AddMeter("Microsoft.AspNetCore.Hosting")
