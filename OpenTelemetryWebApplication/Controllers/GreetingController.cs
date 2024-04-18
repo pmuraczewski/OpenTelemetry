@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
 using System.Diagnostics;
 using OpenTelemetry;
+using System.Threading;
 
 namespace OpenTelemetryWebApplication.Controllers
 {
@@ -12,6 +13,7 @@ namespace OpenTelemetryWebApplication.Controllers
         private readonly ILogger<GreetingController> _logger;
         private readonly Meter _greetingMeter;
         private readonly Counter<int> _greetingsCounter;
+        private readonly Histogram<int> _greetingsRate;
         private readonly ActivitySource _greeterActivitySource;
 
         public GreetingController(ILogger<GreetingController> logger)
@@ -20,10 +22,35 @@ namespace OpenTelemetryWebApplication.Controllers
 
             // Custom metrics for the application
             _greetingMeter = new Meter("OtPrGrYa.Example", "1.0.0");
+
+            // Custom counter
             _greetingsCounter = _greetingMeter.CreateCounter<int>("greetings.count", description: "Counts the number of greetings");
+
+            // Custom histogram
+            _greetingsRate = _greetingMeter.CreateHistogram<int>("greetings.rate", description: "rate of greeting quality", unit: "percentage");
 
             // Custom ActivitySource for the application
             _greeterActivitySource = new ActivitySource("OtPrGrJa.Example");
+        }
+
+        [HttpGet("generate-greeting-rate")]
+        public string GenerateGreetingRate()
+        {
+            // Create a new Activity scoped to the method
+            using var activity = _greeterActivitySource.StartActivity("GreetingRate");
+
+            // Log a message
+            _logger.LogInformation("Generating greeting rate");
+
+            for (int i = 0; i < 20; i++)
+            {
+                // generate random rate
+                var record = Random.Shared.Next(1, 100);
+                _greetingsRate.Record(record);
+                Thread.Sleep(30000);
+            }
+
+            return string.Empty;
         }
 
         [HttpGet("greeting")]
