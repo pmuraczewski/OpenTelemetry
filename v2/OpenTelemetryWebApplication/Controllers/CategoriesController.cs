@@ -25,8 +25,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var category = await categoryService.GetById(id);
-
-            if (category == null) return NotFound();
+            if (category == null)
+            {
+                return NotFound();
+            }
 
             return Ok(mapper.Map<CategoryResultDto>(category));
         }
@@ -36,12 +38,17 @@ namespace OpenTelemetryWebApplication.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Add([FromBody]CategoryAddDto categoryDto)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
             var category = mapper.Map<Category>(categoryDto);
             var categoryResult = await categoryService.Add(category);
-
-            if (categoryResult == null) return BadRequest();
+            if (categoryResult == null)
+            {
+                return BadRequest();
+            }
 
             return Ok(mapper.Map<CategoryResultDto>(categoryResult));
         }
@@ -51,10 +58,16 @@ namespace OpenTelemetryWebApplication.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromBody]CategoryEditDto categoryDto)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
             var categoryResult = await categoryService.Update(mapper.Map<Category>(categoryDto));
-            if (categoryResult == null) return BadRequest();
+            if (categoryResult == null)
+            {
+                return BadRequest();
+            }
 
             return Ok(categoryDto);
         }
@@ -65,11 +78,16 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> Remove(int id)
         {
             var category = await categoryService.GetById(id);
-            if (category == null) return NotFound();
+            if (category == null)
+            {
+                return NotFound();
+            }
 
             var result = await categoryService.Remove(category);
-
-            if (!result) return BadRequest();
+            if (!result)
+            {
+                return BadRequest();
+            }
 
             return Ok();
         }
@@ -81,9 +99,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<ActionResult<List<Category>>> Search(string category)
         {
             var categories = mapper.Map<List<Category>>(await categoryService.Search(category));
-
             if (categories == null || categories.Count == 0)
+            { 
                 return NotFound("None category was founded");
+            }
 
             return Ok(categories);
         }

@@ -25,9 +25,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var order = await orderService.GetById(id);
-
-            if (order is null) 
+            if (order is null)
+            {
                 return NotFound();
+            }
 
             return Ok(mapper.Map<OrderResultDto>(order));
         }
@@ -37,12 +38,17 @@ namespace OpenTelemetryWebApplication.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Add([FromBody]OrderAddDto orderDto)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
             var order = mapper.Map<Order>(orderDto);
             var result = await orderService.Add(order);
-
-            if (result == null) return BadRequest();
+            if (result == null)
+            {
+                return BadRequest();
+            }
 
             return Ok(mapper.Map<OrderResultDto>(result));
         }
@@ -54,10 +60,16 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> Remove(int id)
         {
             var order = await orderService.GetById(id);
-            if (order == null) return NotFound();
+            if (order == null)
+            {
+                return NotFound();
+            }
 
             var result = await orderService.Remove(order);
-            if (result == null)  return BadRequest();
+            if (result == null)
+            {
+                return BadRequest();
+            }
 
             return Ok(mapper.Map<OrderResultDto>(result));
         }
