@@ -17,8 +17,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> GetById(int bookId)
         {
             var inventory = await inventoryService.GetById(bookId);
-
-            if (inventory == null) return NotFound();
+            if (inventory == null)
+            {
+                return NotFound();
+            }
 
             return Ok(mapper.Map<InventoryResultDto>(inventory));
         }
@@ -31,8 +33,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<ActionResult<List<Inventory>>> SearchInventoryForBook(string bookName)
         {
             var inventory = mapper.Map<List<Inventory>>(await inventoryService.SearchInventoryForBook(bookName));
-
-            if (inventory.Count == 0) return NotFound("None inventory was founded");
+            if (inventory.Count == 0)
+            {
+                return NotFound("None inventory was founded");
+            }
 
             return Ok(mapper.Map<IEnumerable<InventoryResultDto>>(inventory));
         }
@@ -42,12 +46,17 @@ namespace OpenTelemetryWebApplication.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Add([FromBody]InventoryAddDto inventoryDto)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
             var inventory = mapper.Map<Inventory>(inventoryDto);
             var inventoryResult = await inventoryService.Add(inventory);
-
-            if (inventoryResult == null) return BadRequest();
+            if (inventoryResult == null)
+            {
+                return BadRequest();
+            }
 
             return Ok(mapper.Map<InventoryResultDto>(inventoryResult));
         }
@@ -57,7 +66,10 @@ namespace OpenTelemetryWebApplication.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromBody]InventoryEditDto inventoryDto)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
             await inventoryService.Update(mapper.Map<Inventory>(inventoryDto));
 
@@ -70,10 +82,16 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> Remove(int bookId)
         {
             var inventory = await inventoryService.GetById(bookId);
-            if (inventory == null) return NotFound();
+            if (inventory == null)
+            {
+                return NotFound();
+            }
 
             var result = await inventoryService.Remove(inventory);
-            if (!result) return BadRequest();
+            if (!result)
+            {
+                return BadRequest();
+            }
 
             return Ok();
         }

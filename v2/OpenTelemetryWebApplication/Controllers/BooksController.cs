@@ -15,6 +15,7 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> GetAll()
         {
             var books = await bookService.GetAll();
+
             return Ok(mapper.Map<IEnumerable<BookResultDto>>(books));
         }
 
@@ -24,8 +25,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var book = await bookService.GetById(id);
-
-            if (book == null) return NotFound();
+            if (book == null)
+            {
+                return NotFound();
+            }
 
             return Ok(mapper.Map<BookResultDto>(book));
         }
@@ -37,8 +40,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> GetBooksByCategory(int categoryId)
         {
             var books = await bookService.GetBooksByCategory(categoryId);
-
-            if (!books.Any()) return NotFound();
+            if (!books.Any())
+            { 
+                return NotFound();
+            }
 
             return Ok(mapper.Map<IEnumerable<BookResultDto>>(books));
         }
@@ -48,12 +53,18 @@ namespace OpenTelemetryWebApplication.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Add([FromBody]BookAddDto bookDto)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
             var book = mapper.Map<Book>(bookDto);
             var bookResult = await bookService.Add(book);
 
-            if (bookResult == null) return BadRequest();
+            if (bookResult == null)
+            {
+                return BadRequest();
+            }
 
             return Ok(mapper.Map<BookResultDto>(bookResult));
         }
@@ -77,7 +88,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<IActionResult> Remove(int id)
         {
             var book = await bookService.GetById(id);
-            if (book == null) return NotFound();
+            if (book == null)
+            { 
+                return NotFound();
+            }
 
             await bookService.Remove(book);
 
@@ -91,8 +105,10 @@ namespace OpenTelemetryWebApplication.Controllers
         public async Task<ActionResult<List<Book>>> Search(string bookName)
         {
             var books = mapper.Map<List<Book>>(await bookService.Search(bookName));
-
-            if (books == null || books.Count == 0) return NotFound("None book was founded");
+            if (books == null || books.Count == 0)
+            {
+                return NotFound("None book was founded");
+            }
 
             return Ok(books);
         }
@@ -105,7 +121,10 @@ namespace OpenTelemetryWebApplication.Controllers
         {
             var books = mapper.Map<List<Book>>(await bookService.SearchBookWithCategory(searchedValue));
 
-            if (books.Count == 0) return NotFound("None book was founded");
+            if (books.Count == 0)
+            {
+                return NotFound("None book was founded");
+            }
 
             return Ok(mapper.Map<IEnumerable<BookResultDto>>(books));
         }
